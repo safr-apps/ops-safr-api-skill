@@ -43,6 +43,8 @@ X-RPC-AUTHORIZATION: <userId>:<password>
 
 Join the user ID and password with one colon. Send the resulting value directly; do not Base64-encode it, prefix it with `Basic` or `Bearer`, or substitute a standard `Authorization` header.
 
+Treat `<userId>` as an opaque SAFR user identifier, not as an email address. Obtain the exact user ID from SAFR administration or runtime configuration; do not derive it from an email address, substitute an account email, or apply email-specific parsing, validation, or normalization. Preserve the supplied user ID unchanged when constructing the header.
+
 Treat the OpenAPI `components.securitySchemes.Authentication` definition and root-level `security` requirement as applying to every operation, including operations that do not list an authentication parameter locally.
 
 Handle the specification's naming inconsistency carefully:

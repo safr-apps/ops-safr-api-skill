@@ -18,12 +18,7 @@ SAFR exposes four services on separate base URLs. Read only the contract or cont
 | CVOS | Person images, object and stream storage, preferences, logs, common objects, and maps | [references/cvos.yaml](references/cvos.yaml), API `3.0.297.1` |
 | VIRGA (VRGA) | Video workers and feeds, status, tasks, configuration, image streams, and zones | [references/vrga.yaml](references/vrga.yaml), API `3.34.816` |
 
-Use [references/SAFRSystemAPIsv1_3.pdf](references/SAFRSystemAPIsv1_3.pdf) for system topology, deployment endpoints, and older cross-service workflow examples. The PDF is a version 1.3 guide and the YAML contracts describe different service versions. Therefore:
-
-- Use the selected YAML for paths, methods, parameters, headers, bodies, media types, response schemas, and documented privileges.
-- Use this skill's environment table, derived from the PDF, for standard cloud base URLs.
-- Treat PDF request examples as workflow context. If an example conflicts with a YAML operation, follow the YAML for the current HTTP contract and identify any unresolved deployment-specific behavior.
-- Never assume that a path documented for one service exists on another service.
+Use the selected YAML for paths, methods, parameters, headers, bodies, media types, response schemas, and documented privileges. Use this skill's embedded environment and cross-service guidance for topology and deployment conventions that the YAML files omit. If an embedded convention conflicts with a selected YAML operation, follow the YAML for the current HTTP contract and identify any unresolved deployment-specific behavior. Never assume that a path documented for one service exists on another service.
 
 All four YAML contracts declare `servers: []`; they do not supply usable environment hosts. Do not derive a base URL from an OpenAPI default or reuse a host merely because two services expose similar paths.
 
@@ -42,7 +37,7 @@ The `dev` hosts follow the user's explicit rule: take the corresponding `int2` h
 
 Always allow a custom endpoint. If the user selects `custom` or describes an on-premises/private deployment, ask for the full base URL for each involved service. A custom URL may include a path prefix, so preserve it. Do not transform a custom hostname using the `int2`/`dev` rule. Confirm that it is the intended trusted deployment before sending credentials.
 
-The PDF records these historical local defaults; treat them as candidates to confirm, not automatic choices:
+Historical SAFR local-deployment defaults are listed below. Treat them as candidates to confirm, not automatic choices:
 
 | Service | HTTP | HTTPS |
 | --- | --- | --- |
@@ -69,7 +64,7 @@ Before constructing a request or client method:
 2. Read the entire operation, including its description, security declaration, required privilege, parameters, request body, and responses.
 3. Resolve every referenced parameter, request body, and schema under `components`.
 4. Use only declared fields, enum values, query parameters, headers, and media types.
-5. Re-check the contract instead of copying a PDF or Swagger UI example when they differ.
+5. Re-check the contract instead of relying on a remembered example when they differ.
 
 Useful anchors for common workflows include:
 
@@ -80,7 +75,23 @@ Useful anchors for common workflows include:
 
 Some workflows cross services. For example, query identities through COVI and fetch their images through CVOS, or query events through CVEV and retrieve associated stored objects through CVOS. Validate each leg against its own contract and base URL.
 
-For “events from the last N seconds,” capture one current epoch-millisecond value and derive both bounds from it. Decide whether the user means event-time overlap or archive-add time. Follow the CVEV paging object until complete when the request says “all” or “each.” For event long polling, a timeout or HTTP `204` is a normal no-change result; on `200`, follow the PDF workflow while validating `sinceModDate` and `lastModDate` against the current CVEV schema.
+Important SAFR identity and image conventions:
+
+- `personId` is SAFR's internal identity identifier. `externalId` correlates that identity with an external system.
+- COVI `POST /people` accepts a binary face image and first attempts to match it against existing identities. Metadata such as a person's name or external ID uses the operation's declared `X-RPC-*` headers, and `newId=true` in the response indicates that a new identity was created.
+- Prefer paged `GET /rootpeople` for large identity directories. Resolve its current paging parameters from the COVI contract.
+- A recognition response may contain one `identifiedFaces` entry per detected face; those faces are not guaranteed to be ordered by match quality. Candidate identities inside a face's `similar` array are ordered by descending `similarityScore`.
+- Do not use face-detection `confidence` as identity-match probability. SAFR match decisions use `similarityScore` relative to the configured face-grouping threshold; do not silently change that threshold.
+- The simplest enrolled-face retrieval is CVOS `GET /person/{personId}/face`. A local `cvos://obj/<object-id>` image URI maps to CVOS `GET /obj/<object-id>`. An `ehttps://` URI denotes application-encrypted content: use the equivalent `https://` URL to download it, obtain the account image key through the current COVI `GET /imagekey` operation, and use only the deployment's approved AES/CBC decryption procedure. Never expose the image key.
+
+For “events from the last N seconds,” capture one current epoch-millisecond value and derive both bounds from it. Decide whether the user means event-time overlap or archive-add time. Follow the CVEV paging object until complete when the request says “all” or “each.” For event long polling:
+
+1. Call `GET /event/status?since=<cursor>`.
+2. Treat a timeout or HTTP `204` as a normal no-change result and poll again with the same cursor.
+3. On `200`, retain the returned `lastModDate` and fetch changed events with `GET /events?sinceModDate=<cursor>`.
+4. Advance the cursor to `lastModDate` and repeat.
+
+Validate `sinceModDate`, `lastModDate`, and the response schema against the current CVEV contract before implementation.
 
 The imported YAML files contain conversion artifacts. Treat them as reasons to verify, not permission to invent request details:
 
@@ -93,14 +104,14 @@ The imported YAML files contain conversion artifacts. Treat them as reasons to v
 
 The four contracts define the API-key header `X-RPC-AUTHORIZATION`. Treat the user ID as an opaque SAFR identifier, not an email address, and preserve it exactly.
 
-The imported sources disagree about password representation:
+The SAFR contracts and deployment conventions disagree about password representation:
 
-- The COVI contract and the PDF's direct HTTP examples use `X-RPC-AUTHORIZATION: <userId>:<password>`.
-- The CVEV, CVOS, and VIRGA Swagger introductions tell users of “Try it out” to enter `<userId>:<base64(password)>`, while the PDF's direct HTTP examples for those services show the raw password.
+- The COVI contract and direct-request convention use `X-RPC-AUTHORIZATION: <userId>:<password>`.
+- The CVEV, CVOS, and VIRGA Swagger introductions tell “Try it out” users to enter `<userId>:<base64(password)>`, while some direct API deployments use the raw password form.
 
 For COVI, use the contract's raw `<userId>:<password>` form unless the deployment says otherwise. For CVEV, CVOS, or VIRGA, prefer a prebuilt authorization value or a known deployment convention. If only a user ID and password are available and the convention is unknown, ask whether that deployment expects a raw or Base64-encoded password before constructing or sending the header. Never Base64-encode the entire `userId:password` pair unless deployment documentation explicitly requires it.
 
-Use `X-RPC-DIRECTORY` when the selected YAML operation declares it. The PDF's older examples use `Authorization: main` as the directory header; do not copy that legacy header name unless the target deployment explicitly requires it. Use `main` only when its documented default is appropriate or the caller chooses it. For a custom deployment or live destructive request, obtain or explicitly confirm the directory rather than silently accepting `main`. Do not confuse either directory header with `X-RPC-AUTHORIZATION`.
+Use `X-RPC-DIRECTORY` when the selected YAML operation declares it. Some older SAFR deployments use the legacy directory header `Authorization: main`; do not use that legacy name unless the target deployment explicitly requires it. Use `main` only when its documented default is appropriate or the caller chooses it. For a custom deployment or live destructive request, obtain or explicitly confirm the directory rather than silently accepting `main`. Directories partition people, objects, and events within an account; identical directory names in different accounts do not share data. Do not confuse either directory header with `X-RPC-AUTHORIZATION`.
 
 Do not infer an extra gateway `Authorization` header from generic 401/403 text. Add proxy or gateway credentials only when the user or deployment configuration supplies that requirement.
 
@@ -114,7 +125,7 @@ X-RPC-AUTHORIZATION: <redacted>
 
 Do not enable shell tracing while secrets are in scope. Treat face images, signatures, identity records, recognition events, access clearances, and stored scene images as sensitive. Confirm that uploads and access are authorized, minimize returned personal data, and avoid persisting response bodies unless required.
 
-Runnable examples may reference a protected runtime variable such as `${SAFR_AUTHORIZATION}`, but must never contain or print its literal value. Treat the bundled system guide, which is marked RealNetworks Confidential, as internal material and do not reproduce large excerpts.
+Runnable examples may reference a protected runtime variable such as `${SAFR_AUTHORIZATION}`, but must never contain or print its literal value.
 
 Never reuse production credentials against `dev`, `int2`, or a custom host merely because the authentication header has the same name.
 

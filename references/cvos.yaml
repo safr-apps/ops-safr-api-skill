@@ -1,0 +1,5137 @@
+openapi: 3.0.1
+info:
+  title: SAFR Object Server API
+  description: '<H4>An API to publish, query and modify objects in a store.</H4> <H5>Summary</H5>Objects
+    are stored and queried using the Object Storage Interface below.  They are available
+    by tenant and directory as specified by the user credentials and X-RPC-DIRECTORY
+    header respectively. <br/>Streams, Preferences and Logs are stored and queried
+    per tenant and ignore the X-RPC-DIRECTORY header. <br/>Common objects are system
+    wide read-only objects managed by system administrators, available to all tenants.
+    <br/>Objects stored by SAFR Desktop and other SAFR client applications include
+    identity reference images, recognition event scene images and tracking results.  For
+    detailed information on images stored by SAFR applications see the following appendix:<H5>Appendix
+    A: <a href="/docs/appendix.html">SAFR System Stored Objects</a></H5><H5>Calling
+    APIs</H5><p>In order to use the ''Try it out'' feature of APIs below, click the
+    ''Authorize'' button and enter your user id and base64 of your password separated
+    by a colon, i.e. userId:<i>base64</i>(password).</p>'
+  contact:
+    name: safr-feedback@realnetworks.com
+    email: safr-feedback@realnetworks.com
+  version: 3.0.297.1
+servers: []
+tags:
+- name: Person Object Interface
+  description: Interface to get person face images
+- name: Object Storage Interfaces
+  description: Store, fetch and delete objects.
+- name: Stream Interfaces
+  description: Store, fetch and delete transient stream objects.
+- name: Admin Object Storage Interfaces
+  description: APIs available to administrators only.
+- name: Common Object Interfaces
+  description: Fetch objects common to all tenants and directories
+- name: Preferences Interfaces
+  description: Store, fetch and delete preferences objects shared by all directories
+    within a tenant.
+- name: Logs Interfaces
+  description: Store, fetch and delete log objects shared by all directories within
+    a tenant.
+- name: Map Storage and Searching Interfaces
+  description: Interface to store and search maps and coordinates
+paths:
+  /admin/obj/{tenantId}/{id}:
+    get:
+      tags:
+      - Admin Object Storage Interfaces
+      summary: Get default object content on behalf of another tenant.
+      description: Get default object content on behalf of another tenant associated
+        with the folder.<br/><br/>Requires SUPER_READ_PRIVILEGE.
+      operationId: fetchObjectAdminUsingGET_1
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      - name: tenantId
+        in: path
+        description: tenant id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Admin Object Storage Interfaces
+      summary: Store or update existing object with a default name
+      description: Create or update an object with content provided.  Object will
+        only be accessible to tenant of caller.<br/><br/>Requires WRITE_PRIVILEGE
+        or WRITE_EVENT_PRIVILEGE.
+      operationId: upsertObjectAdminUsingPOST
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: path
+        description: tenant id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Admin Object Storage Interfaces
+      summary: Deletes a folder.
+      description: Deletes a folder on behalf of a tenant.  Empty parent directories
+        will be deleted recursively. <br/><br/>Requires SUPER_DELETE_PRIVILEGE.
+      operationId: deleteAdminObjectUsingDELETE
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: path
+        description: tenant id
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /admin/obj/{tenantId}/{id}/{itemName}:
+    get:
+      tags:
+      - Admin Object Storage Interfaces
+      summary: Get object content on behalf of another tenant.
+      description: Get object content on behalf of another tenant associated with
+        the folder by item name.<br/><br/>Requires SUPER_READ_PRIVILEGE.
+      operationId: fetchObjectAdminUsingGET
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: path
+        description: tenant id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Admin Object Storage Interfaces
+      summary: Store or update existing object
+      description: Create or update an object with content provided. Object will only
+        be accessible to tenant of caller.<br/><br/>Requires SUPER_WRITE_PRIVILEGE
+      operationId: upsertObjectWithNameAdminUsingPOST
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name
+        required: true
+        schema:
+          type: string
+      - name: tenantId
+        in: path
+        description: tenant id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+  /common/list/{id}:
+    get:
+      tags:
+      - Common Object Interfaces
+      summary: List stored common objects
+      description: Lists stored common objects in the specified folder.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: listCommonsUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: common folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /common/{id}:
+    get:
+      tags:
+      - Common Object Interfaces
+      summary: Get common object
+      description: Get common object content associated with the folder.  Common objects
+        are available to all tenants. <br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchObjectUsingGET_1
+      parameters:
+      - name: id
+        in: path
+        description: common folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Common Object Interfaces
+      summary: Store or update existing object accessible to all users and directories
+      description: Create or update an object accessible to all users and directories
+        with content provided.<br/><br/>Requires SUPER_CONFIG_PRIVILEGE.
+      operationId: upsertCommonObjectUsingPOST_1
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+  /common/{id}/{itemName}:
+    get:
+      tags:
+      - Common Object Interfaces
+      summary: Get common object
+      description: Get common object content associated with the folder.  Common objects
+        are available to all tenants. <br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchObjectUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: common folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: common item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Common Object Interfaces
+      summary: Store or update existing object accessible to all users and directories
+      description: Create or update an object accessible to all users and directories
+        with content provided.<br/><br/>Requires SUPER_CONFIG_PRIVILEGE.
+      operationId: upsertCommonObjectUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+  /log/list/{id}:
+    get:
+      tags:
+      - Logs Interfaces
+      summary: List stored log objects
+      description: Lists stored log objects in the specified folder.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: listLogsObjectsUsingGET
+      parameters:
+      - name: count
+        in: path
+        description: count
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: logs folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /log/{id}:
+    get:
+      tags:
+      - Logs Interfaces
+      summary: Get a log or set of logs.
+      description: Returns default log by id or log by index and id. <br/><br/>Requires
+        READ_PRIVILEGE.<br/><br/>requires SUPER_READ_PRIVILEGE to provide the tenant
+        parameter.
+      operationId: fetchLogsUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: log id
+        required: true
+        schema:
+          type: string
+      - name: index
+        in: query
+        description: index of the log to be retrieved.
+        allowEmptyValue: false
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: tenant that owns the log; 403 Forbidden will be returned if tenant
+          provided by user lacking SUPER_READ_PRIVILEGE.
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Logs Interfaces
+      summary: Store or update a logging segment
+      description: Adds or updates a logs object by index.  <br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: upsertLogUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: log id
+        required: true
+        schema:
+          type: string
+      - name: index
+        in: query
+        description: log index
+        allowEmptyValue: false
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Logs Interfaces
+      summary: Delete logs for the given id and optionally name.
+      description: Deletes the logs object for the given id and optionally name.  <br/><br/>Requires
+        DELETE_PRIVILEGE.
+      operationId: deleteLogsUsingDELETE
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: olderThanDays
+        in: query
+        description: in days, age beyond which to delete
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /map/list:
+    get:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Query list of map details matching criteria
+      description: Query list of map details matching criteria such as intersection
+        of  GPS longitude and longitude, min or max area.<br/> Query by GPS longitude
+        and latitude to search for maps whose regions intersect can be specified region  (defined
+        by two coordinates provided) or point (when only one coordinate is provided).<br/><br/>Requires
+        READ_PRIVILEGE
+      operationId: getMapDetailsListByQueryUsingGET
+      parameters:
+      - name: count
+        in: query
+        description: count
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: latitude1
+        in: query
+        description: latitude to be contained within map area
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 47.590631
+      - name: latitude2
+        in: query
+        description: another latitude to be contained within map area
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 47.5907
+      - name: longitude1
+        in: query
+        description: longitude to be contained within map area
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: -122.3366
+      - name: longitude2
+        in: query
+        description: another longitude to be contained within map area
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: -122.34
+      - name: maxArea
+        in: query
+        description: maximum area in kilometers squared map is to represent
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 1.0
+      - name: minArea
+        in: query
+        description: minimum area in kilometers squared map is to represent
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 0.02
+      - name: type
+        in: query
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        allowEmptyValue: false
+        schema:
+          type: string
+        example: satellite
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response object'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /map/list/{mapId}:
+    get:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Find list of map details or a single map details
+      description: Find list of map details or a single map details <br/><br/>Requires
+        READ_PRIVILEGE
+      operationId: getMapDetailsListUsingGET
+      parameters:
+      - name: mapId
+        in: path
+        description: map object id unique within a tenant
+        required: true
+        schema:
+          type: string
+      - name: mapType
+        in: path
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        required: true
+        schema:
+          type: string
+        example: satellite
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response object'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /map/list/{mapId}/{mapType}:
+    get:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Find list of map details or a single map details
+      description: Find list of map details or a single map details <br/><br/>Requires
+        READ_PRIVILEGE
+      operationId: getMapDetailsListUsingGET_1
+      parameters:
+      - name: mapId
+        in: path
+        description: map object id unique within a tenant
+        required: true
+        schema:
+          type: string
+      - name: mapType
+        in: path
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        required: true
+        schema:
+          type: string
+        example: satellite
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response object'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /map/{mapId}:
+    delete:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Delete list of map details and binary images
+      description: Delete list of map details and binary images <br/><br/>Requires
+        DELETE_PRIVILEGE
+      operationId: deleteMapByTypeUsingDELETE
+      parameters:
+      - name: mapId
+        in: path
+        description: map object id unique within a tenant
+        required: true
+        schema:
+          type: string
+      - name: mapType
+        in: path
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        required: true
+        schema:
+          type: string
+        example: satellite
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntity'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /map/{mapId}/{mapType}:
+    get:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Get a binary map from storage
+      description: Get a binary map from storage<br/><br/>Requires READ_PRIVILEGE
+      operationId: getMapByImageTypeUsingGET
+      parameters:
+      - name: mapId
+        in: path
+        description: map object id unique within a tenant
+        required: true
+        schema:
+          type: string
+      - name: mapType
+        in: path
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        required: true
+        schema:
+          type: string
+        example: satellite
+      responses:
+        200:
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: byte
+            image/jpeg:
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            image/jpeg:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            image/jpeg:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            image/jpeg:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            image/jpeg:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Save a binary map and its details
+      description: Save a binary map and its details including longitude, latitude,
+        and  area<br/><br/>Requires WRITE_PRIVILEGE
+      operationId: postMapUsingPOST
+      parameters:
+      - name: area
+        in: query
+        description: map area in kilometers squared
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 0.1
+      - name: bottomLatitude
+        in: query
+        description: |-
+          min latitude of the bottom edge of the map.
+           Valid latitude values are between -90 and 90, both inclusive
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 47.588508
+      - name: content-type
+        in: header
+        description: content-type
+        required: true
+        schema:
+          type: string
+      - name: leftLongitude
+        in: query
+        description: min longitude of the left edge of the map
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: -122.3366
+      - name: mapId
+        in: path
+        description: map object id unique within a tenant
+        required: true
+        schema:
+          type: string
+      - name: mapType
+        in: path
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        required: true
+        schema:
+          type: string
+        example: satellite
+      - name: name
+        in: query
+        description: friendly map name
+        allowEmptyValue: false
+        schema:
+          type: string
+        example: Local office
+      - name: rightLongitude
+        in: query
+        description: |-
+          max longitude of the right edge of the map.
+           Valid longitude values are between -180 and 180, both inclusive
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: -122.332878
+      - name: topLatitude
+        in: query
+        description: max latitude of the top edge of the map
+        allowEmptyValue: false
+        schema:
+          type: number
+          format: double
+        example: 47.590631
+      requestBody:
+        description: jpeg map image
+        content:
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: mapImage
+    delete:
+      tags:
+      - Map Storage and Searching Interfaces
+      summary: Delete list of map details and binary images
+      description: Delete list of map details and binary images <br/><br/>Requires
+        DELETE_PRIVILEGE
+      operationId: deleteMapByTypeUsingDELETE_1
+      parameters:
+      - name: mapId
+        in: path
+        description: map object id unique within a tenant
+        required: true
+        schema:
+          type: string
+      - name: mapType
+        in: path
+        description: 'map object type; one of the following: satellite, terrain,street,
+          labeledSatellite'
+        required: true
+        schema:
+          type: string
+        example: satellite
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntity'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/copy/{id}:
+    post:
+      tags:
+      - Object Storage Interfaces
+      summary: Copies a folder
+      description: Copies contents of one folder to another<br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: copyObjectUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: body
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/CopyRequest'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: body
+  /obj/copy/{id}/{itemName}:
+    post:
+      tags:
+      - Object Storage Interfaces
+      summary: Copies an item to a folder
+      description: Copies an item from one folder to another<br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: copyObjectByNameUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: body
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/CopyRequest'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: body
+  /obj/large/{id}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: Get large object
+      description: Get large object content associated with the folder. Objects posted
+        by SAFR Desktop application for events are identified by the base64 of the
+        event Id; images objects associated with events include 'face' and 'sceneThumb',
+        e.g. GET https://cvos.real.com/obj/base64(eventId)/sceneThumb will retrieve
+        the sceneThumb if the client is configured to post it.<br/><br/>Requires READ_PRIVILEGE
+        or SUPER_READ_PRIVILEGE in order to read objects from a different tenant.
+      operationId: fetchObjectUsingGET_4
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StreamingResponseBody'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Object Storage Interfaces
+      summary: Store or update existing large object
+      description: Create or update a large object with content provided. Object will
+        only be accessible to tenant of caller. <br/><br/>Requires WRITE_PRIVILEGE
+        or WRITE_EVENT_PRIVILEGE.
+      operationId: upsertLargeObjectUsingPOST
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        202:
+          description: Accepted
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/large/{id}/{itemName}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: Get large object
+      description: Get large object content associated with the folder. Objects posted
+        by SAFR Desktop application for events are identified by the base64 of the
+        event Id; images objects associated with events include 'face' and 'sceneThumb',
+        e.g. GET https://cvos.real.com/obj/base64(eventId)/sceneThumb will retrieve
+        the sceneThumb if the client is configured to post it.<br/><br/>Requires READ_PRIVILEGE
+        or SUPER_READ_PRIVILEGE in order to read objects from a different tenant.
+      operationId: fetchObjectUsingGET_5
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StreamingResponseBody'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Object Storage Interfaces
+      summary: Store or update existing large object
+      description: Create or update a large object with content provided. Object will
+        only be accessible to tenant of caller. <br/><br/>Requires WRITE_PRIVILEGE
+        or WRITE_EVENT_PRIVILEGE.
+      operationId: upsertLargeObjectUsingPOST_1
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        202:
+          description: Accepted
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/list/{id}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: List stored objects
+      description: Lists stored objects in the specified folder.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: listObjectUsingGET
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/modDate/{id}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: Get object Mod Date
+      description: Get object Last Modified Date time as milliseconds since Epoch.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: getModDateUsingGET_1
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModDateResponse'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/modDate/{id}/{itemName}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: Get object Mod Date
+      description: Get object Last Modified Date time as milliseconds since Epoch.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: getModDateUsingGET
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is fetched
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModDateResponse'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/{id}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: Get a named object with a default name
+      description: Get default object content associated with the folder {id}. See
+        Get Object API for more detail.<br/><br/>Requires READ_PRIVILEGE or SUPER_READ_PRIVILEGE
+        in order to read objects from a different tenant.
+      operationId: fetchObjectUsingGET_3
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Object Storage Interfaces
+      summary: Store or update existing object with a default name
+      description: Create or update an object with content provided.  Object will
+        only be accessible to tenant of caller.<br/><br/>Requires WRITE_PRIVILEGE
+        or WRITE_EVENT_PRIVILEGE.
+      operationId: upsertObjectUsingPOST
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Object Storage Interfaces
+      summary: Delete folder
+      description: Deletes the entire folder identified by {id}.  Empty parent directories
+        will be deleted recursively.  <br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: deleteObjectUsingDELETE_1
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    head:
+      tags:
+      - Object Storage Interfaces
+      summary: Get headers for an object
+      description: Get headers for an object associated with partner, directory and
+        {id}/{name}. Unlike other API calls, this call is not load balanced among
+        available servers in order to provide internal support for locating content
+        among available storages.If CVOS is in proxy mode, or if content cannot be
+        located, a 204 response will be returned.<br/><br/>Requires READ_PRIVILEGE
+        or SUPER_READ_PRIVILEGE in order to read objects from a different tenant.
+      operationId: fetchObjectHeadersUsingHEAD
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content: {}
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /obj/{id}/{itemName}:
+    get:
+      tags:
+      - Object Storage Interfaces
+      summary: Get object
+      description: Get object content associated with the folder. Objects posted by
+        SAFR Desktop application for events are identified by the base64 of the event
+        Id; images objects associated with events include 'face' and 'sceneThumb',
+        e.g. GET https://cvos.real.com/obj/base64(eventId)/sceneThumb will retrieve
+        the sceneThumb if the client is configured to post it.<br/><br/>Requires READ_PRIVILEGE
+        or SUPER_READ_PRIVILEGE in order to read objects from a different tenant.
+      operationId: fetchObjectUsingGET_2
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Object Storage Interfaces
+      summary: Store or update existing object
+      description: Create or update an object with content provided. Object will only
+        be accessible to tenant of caller. <br/><br/>Requires WRITE_PRIVILEGE or WRITE_EVENT_PRIVILEGE.
+      operationId: upsertObjectWithNameUsingPOST
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Object Storage Interfaces
+      summary: Delete named object
+      description: Deletes {itemName} from folder {id}.  Empty parent directories
+        will be deleted recursively including immediate parent {id}.  <br/><br/>Requires
+        WRITE_PRIVILEGE.
+      operationId: deleteObjectUsingDELETE
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if specified deletes only specific item, if not specified
+          deletes the entire folder
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    head:
+      tags:
+      - Object Storage Interfaces
+      summary: Get headers for an object
+      description: Get headers for an object associated with partner, directory and
+        {id}/{name}. Unlike other API calls, this call is not load balanced among
+        available servers in order to provide internal support for locating content
+        among available storages.If CVOS is in proxy mode, or if content cannot be
+        located, a 204 response will be returned.<br/><br/>Requires READ_PRIVILEGE
+        or SUPER_READ_PRIVILEGE in order to read objects from a different tenant.
+      operationId: fetchObjectHeadersUsingHEAD_1
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        description: Optional different tenant may be specified if the caller has
+          SUPER_READ_PRIVILEGE
+        allowEmptyValue: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content: {}
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /person/{personId}/face:
+    get:
+      tags:
+      - Person Object Interface
+      summary: Get a face image for a person.
+      description: Matches a person id to a face in the database then does a lookup
+        on the image. It is more efficient to use the object interface to obtain a
+        face image or a direct download if the identity image is described by an http
+        url. <br/><br/>Requires READ_EVENT_PRIVILEGE
+      operationId: getPersonFaceUsingGET
+      parameters:
+      - name: X-RPC-DIRECTORY
+        in: header
+        description: Header containing the directory.
+        required: true
+        schema:
+          type: string
+      - name: personId
+        in: path
+        description: person id
+        required: true
+        schema:
+          type: string
+      - name: sync
+        in: query
+        description: sync
+        allowEmptyValue: false
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /preferences/list:
+    get:
+      tags:
+      - Preferences Interfaces
+      summary: List stored preferences objects
+      description: Lists stored preferences objects in the specified folder.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: listPreferencesObjectsUsingGET_1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /preferences/list/{id}:
+    get:
+      tags:
+      - Preferences Interfaces
+      summary: List stored preferences objects
+      description: Lists stored log preferences in the specified folder.  <br/><br/>Requires
+        READ_PRIVILEGE.
+      operationId: listPreferencesObjectsUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: preferences folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /preferences/modDate/{id}:
+    get:
+      tags:
+      - Preferences Interfaces
+      summary: Get Preference Object Mod Date
+      description: Get Preference Object Last Modified Date time as milliseconds since
+        Epoch.  <br/><br/>Requires READ_PRIVILEGE.
+      operationId: getPreferenceModDateUsingGET_1
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModDateResponse'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /preferences/modDate/{id}/{itemName}:
+    get:
+      tags:
+      - Preferences Interfaces
+      summary: Get Preference Object Mod Date
+      description: Get Preference Object Last Modified Date time as milliseconds since
+        Epoch.  <br/><br/>Requires READ_PRIVILEGE.
+      operationId: getPreferenceModDateUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is fetched
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ModDateResponse'
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /preferences/{id}:
+    get:
+      tags:
+      - Preferences Interfaces
+      summary: Get a set of preferences
+      description: Returns preferences stored as an object. <br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchPreferencesUsingGET_1
+      parameters:
+      - name: id
+        in: path
+        description: preference id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Preferences Interfaces
+      summary: Store or update a set of preferences under a default name
+      description: Create or update a preferences object.  <br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: upsertPreferenceUsingPOST_1
+      parameters:
+      - name: id
+        in: path
+        description: preference id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Preferences Interfaces
+      summary: Delete preference for the given id and optionally name.
+      description: Deletes the preference object for the given id and optionally name.  <br/><br/>Requires
+        DELETE_PRIVILEGE.
+      operationId: deletePreferenceUsingDELETE
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /preferences/{id}/{itemName}:
+    get:
+      tags:
+      - Preferences Interfaces
+      summary: Get a set of preferences
+      description: Returns preferences stored as an object. <br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchPreferencesUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: preference id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name, if not specified default folder object is updated
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Preferences Interfaces
+      summary: Store or update a set of preferences under a folder id with a given
+        name
+      description: Adds or updates a preferences object.  <br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: upsertPreferenceUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: preference id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: item name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          '*/*':
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Preferences Interfaces
+      summary: Delete preference for the given id and optionally name.
+      description: Deletes the preference object for the given id and optionally name.  <br/><br/>Requires
+        DELETE_PRIVILEGE.
+      operationId: deletePreferenceUsingDELETE_1
+      parameters:
+      - name: id
+        in: path
+        description: folder id
+        required: true
+        schema:
+          type: string
+      - name: itemName
+        in: path
+        description: preference name, if specified deletes only specific item, if
+          not specified deletes the entire folder
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /sharedStream/{id}:
+    get:
+      tags:
+      - Stream Interfaces
+      summary: Get a shared stream
+      description: Returns a last posted stream packet. After the retrieval the packet
+        is not removed.<br/>When packet is returned, X-RPC-STREAM-TIME response header
+        is also returned. The X-RPC-STREAM-TIME response header indicates the time
+        when the stream packet was posted. The value of the X-RPC-STREAM-TIME header
+        is in milliseconds and can be used in the since query parameter in the subsequent
+        calls. When since query parameter is specified, the stream packet is returned
+        only when stream packet is posted more recently than the time in the since
+        query parameter. When no since parameter is specified, latest stream packet
+        is returned if present even if returned in prior call.<br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchSharedStreamUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      - name: since
+        in: query
+        description: modified since
+        allowEmptyValue: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Stream Interfaces
+      summary: Store or update existing shared stream
+      description: Create or update shared stream with content provided.<br/><br/>Requires
+        WRITE_PRIVILEGE.
+      operationId: upsertSharedStreamUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      - name: relay
+        in: query
+        description: relay url to which CVOS posts stream objects.
+        allowEmptyValue: false
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Stream Interfaces
+      summary: Delete shared stream or folder
+      description: Deletes shared stream or folder.<br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: deleteSharedStreamUsingDELETE
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+  /sharedstream/{id}:
+    get:
+      tags:
+      - Stream Interfaces
+      summary: Get a shared stream
+      description: Returns a last posted stream packet. After the retrieval the packet
+        is not removed.<br/>When packet is returned, X-RPC-STREAM-TIME response header
+        is also returned. The X-RPC-STREAM-TIME response header indicates the time
+        when the stream packet was posted. The value of the X-RPC-STREAM-TIME header
+        is in milliseconds and can be used in the since query parameter in the subsequent
+        calls. When since query parameter is specified, the stream packet is returned
+        only when stream packet is posted more recently than the time in the since
+        query parameter. When no since parameter is specified, latest stream packet
+        is returned if present even if returned in prior call.<br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchSharedStreamUsingGET_1
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      - name: since
+        in: query
+        description: modified since
+        allowEmptyValue: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Stream Interfaces
+      summary: Store or update existing shared stream
+      description: Create or update shared stream with content provided.<br/><br/>Requires
+        WRITE_PRIVILEGE.
+      operationId: upsertSharedStreamUsingPOST_1
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      - name: relay
+        in: query
+        description: relay url to which CVOS posts stream objects.
+        allowEmptyValue: false
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+  /stream/{id}:
+    get:
+      tags:
+      - Stream Interfaces
+      summary: Get a stream
+      description: Returns a last posted stream packet. After the retrieval the packet
+        is removed.<br/><br/>Requires READ_PRIVILEGE.
+      operationId: fetchStreamUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+    post:
+      tags:
+      - Stream Interfaces
+      summary: Store or update existing stream
+      description: Create or update stream with content provided.<br/><br/>Requires
+        WRITE_PRIVILEGE.
+      operationId: upsertStreamUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: stream identifier
+        required: true
+        schema:
+          type: string
+      - name: relay
+        in: query
+        description: relay url to which CVOS posts stream objects.
+        allowEmptyValue: false
+        schema:
+          type: string
+      requestBody:
+        description: content
+        content:
+          audio/x-ms-wma:
+            schema:
+              type: string
+              format: byte
+          image/jpeg:
+            schema:
+              type: string
+              format: byte
+          '*/*':
+            schema:
+              type: string
+              format: byte
+          image/gif:
+            schema:
+              type: string
+              format: byte
+          image/x-icon:
+            schema:
+              type: string
+              format: byte
+          image/vnd.djvu:
+            schema:
+              type: string
+              format: byte
+          image/svg+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.mozilla.xul+xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+            schema:
+              type: string
+              format: byte
+          text/javascript:
+            schema:
+              type: string
+              format: byte
+          audio/x-wav:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-excel:
+            schema:
+              type: string
+              format: byte
+          text/plain:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.spreadsheet:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.graphics:
+            schema:
+              type: string
+              format: byte
+          image/png:
+            schema:
+              type: string
+              format: byte
+          application/octet-stream:
+            schema:
+              type: string
+              format: byte
+          application/json:
+            schema:
+              type: string
+              format: byte
+          application/msword:
+            schema:
+              type: string
+              format: byte
+          text/xml:
+            schema:
+              type: string
+              format: byte
+          application/vnd.ms-powerpoint:
+            schema:
+              type: string
+              format: byte
+          audio/mpeg:
+            schema:
+              type: string
+              format: byte
+          text/html:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.text:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.presentationml.presentation:
+            schema:
+              type: string
+              format: byte
+          image/tiff:
+            schema:
+              type: string
+              format: byte
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              type: string
+              format: byte
+          text/csv:
+            schema:
+              type: string
+              format: byte
+          application/vnd.oasis.opendocument.presentation:
+            schema:
+              type: string
+              format: byte
+          image/vnd.microsoft.icon:
+            schema:
+              type: string
+              format: byte
+          audio/vnd.rn-realaudio:
+            schema:
+              type: string
+              format: byte
+          text/css:
+            schema:
+              type: string
+              format: byte
+        required: true
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+      x-codegen-request-body-name: content
+    delete:
+      tags:
+      - Stream Interfaces
+      summary: Delete stream or folder
+      description: Deletes stream or folder. <br/><br/>Requires WRITE_PRIVILEGE.
+      operationId: deleteStreamUsingDELETE
+      parameters:
+      - name: id
+        in: path
+        description: stream id
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Forbidden
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      deprecated: false
+      security:
+      - Authentication:
+        - global
+components:
+  schemas:
+    CopyDestination:
+      title: CopyDestination
+      type: object
+      properties:
+        directory:
+          type: string
+        password:
+          type: string
+        path:
+          type: string
+        userId:
+          type: string
+    CopyRequest:
+      title: CopyRequest
+      type: object
+      properties:
+        destination:
+          $ref: '#/components/schemas/CopyDestination'
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        error:
+          type: string
+        errorReason:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        status:
+          type: integer
+          format: int32
+        timestamp:
+          type: integer
+          format: int64
+        verb:
+          type: string
+    ListResponse:
+      title: ListResponse
+      type: object
+      properties:
+        id:
+          type: string
+        names:
+          type: array
+          items:
+            type: string
+    MapDetails:
+      title: MapDetails
+      type: object
+      properties:
+        area:
+          type: number
+          description: in kilometers squared, 100.0 = 100km2<br/> if this is not provided
+            when map is posted, <br/>it is computed based on map coordinates if they
+            are provided.
+          format: double
+        bottomLatitude:
+          type: number
+          description: Optional floating point min latitude of the bottom edge of
+            the map.<br/>Valid latitude values are between -90 and 90, both inclusive.
+          format: double
+        centerLatitude:
+          type: number
+          description: Computed value generated from input latitude
+          format: double
+        centerLongitude:
+          type: number
+          description: Computed value generated from input latitude
+          format: double
+        id:
+          type: string
+          description: Map object id unique within a tenant
+        leftLongitude:
+          type: number
+          description: Optional floating point max longitude of the left edge of the
+            map<br/>Valid longitude values are between -180 and 180, both inclusive.
+          format: double
+        name:
+          type: string
+          description: Optional, friendly map name
+        rightLongitude:
+          type: number
+          description: Optional floating point max longitude of the right edge of
+            the map<br/>Valid longitude values are between -180 and 180, both inclusive.
+          format: double
+        topLatitude:
+          type: number
+          description: Optional floating point max latitude of the top edge of the
+            map<br/>Valid latitude values are between -90 and 90, both inclusive.
+          format: double
+        type:
+          type: string
+          description: Map object type.  One of:<br/>"satellite", <br/>"street", <br/>"terrain",
+            <br/>"labeledSatellite"
+    ModDateResponse:
+      title: ModDateResponse
+      type: object
+      properties:
+        modDate:
+          type: integer
+          format: int64
+    Response object:
+      title: Response object
+      type: object
+      properties:
+        maps:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapDetails'
+    ResponseEntity:
+      title: ResponseEntity
+      type: object
+      properties:
+        body:
+          type: object
+          properties: {}
+        statusCode:
+          type: string
+          enum:
+          - 100 CONTINUE
+          - 101 SWITCHING_PROTOCOLS
+          - 102 PROCESSING
+          - 103 CHECKPOINT
+          - 200 OK
+          - 201 CREATED
+          - 202 ACCEPTED
+          - 203 NON_AUTHORITATIVE_INFORMATION
+          - 204 NO_CONTENT
+          - 205 RESET_CONTENT
+          - 206 PARTIAL_CONTENT
+          - 207 MULTI_STATUS
+          - 208 ALREADY_REPORTED
+          - 226 IM_USED
+          - 300 MULTIPLE_CHOICES
+          - 301 MOVED_PERMANENTLY
+          - 302 FOUND
+          - 302 MOVED_TEMPORARILY
+          - 303 SEE_OTHER
+          - 304 NOT_MODIFIED
+          - 305 USE_PROXY
+          - 307 TEMPORARY_REDIRECT
+          - 308 PERMANENT_REDIRECT
+          - 400 BAD_REQUEST
+          - 401 UNAUTHORIZED
+          - 402 PAYMENT_REQUIRED
+          - 403 FORBIDDEN
+          - 404 NOT_FOUND
+          - 405 METHOD_NOT_ALLOWED
+          - 406 NOT_ACCEPTABLE
+          - 407 PROXY_AUTHENTICATION_REQUIRED
+          - 408 REQUEST_TIMEOUT
+          - 409 CONFLICT
+          - 410 GONE
+          - 411 LENGTH_REQUIRED
+          - 412 PRECONDITION_FAILED
+          - 413 PAYLOAD_TOO_LARGE
+          - 413 REQUEST_ENTITY_TOO_LARGE
+          - 414 URI_TOO_LONG
+          - 414 REQUEST_URI_TOO_LONG
+          - 415 UNSUPPORTED_MEDIA_TYPE
+          - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+          - 417 EXPECTATION_FAILED
+          - 418 I_AM_A_TEAPOT
+          - 419 INSUFFICIENT_SPACE_ON_RESOURCE
+          - 420 METHOD_FAILURE
+          - 421 DESTINATION_LOCKED
+          - 422 UNPROCESSABLE_ENTITY
+          - 423 LOCKED
+          - 424 FAILED_DEPENDENCY
+          - 426 UPGRADE_REQUIRED
+          - 428 PRECONDITION_REQUIRED
+          - 429 TOO_MANY_REQUESTS
+          - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+          - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+          - 500 INTERNAL_SERVER_ERROR
+          - 501 NOT_IMPLEMENTED
+          - 502 BAD_GATEWAY
+          - 503 SERVICE_UNAVAILABLE
+          - 504 GATEWAY_TIMEOUT
+          - 505 HTTP_VERSION_NOT_SUPPORTED
+          - 506 VARIANT_ALSO_NEGOTIATES
+          - 507 INSUFFICIENT_STORAGE
+          - 508 LOOP_DETECTED
+          - 509 BANDWIDTH_LIMIT_EXCEEDED
+          - 510 NOT_EXTENDED
+          - 511 NETWORK_AUTHENTICATION_REQUIRED
+        statusCodeValue:
+          type: integer
+          format: int32
+    StreamingResponseBody:
+      title: StreamingResponseBody
+      type: object
+  securitySchemes:
+    Authentication:
+      type: apiKey
+      name: X-RPC-AUTHORIZATION
+      in: header

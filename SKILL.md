@@ -1,177 +1,155 @@
 ---
 name: safr-api
-description: Use when integrating with, querying, operating, or troubleshooting the SAFR Computer Vision REST API, including face and people recognition, verification, signatures, groups, objects, directories, users, roles, tenants, access clearances, invitations, and zones. Use for constructing requests, generating client code, interpreting responses, or diagnosing SAFR authentication and privilege errors. Not for generic computer-vision work that does not use the SAFR API.
+description: Use when integrating with, querying, operating, or troubleshooting the SAFR Platform REST APIs—COVI, CVEV, CVOS, or VIRGA/VRGA—including choosing dev, int2, prod, or custom service endpoints. Use for constructing requests, generating clients, interpreting responses, or diagnosing SAFR authentication and privilege errors. Not for generic computer-vision work that does not use SAFR.
 ---
 
-# SAFR API
+# SAFR Platform APIs
 
-Use this skill to work safely and accurately with the SAFR Computer Vision REST API.
+Use this skill to select the correct SAFR service, contract, and deployment before constructing or sending a request.
 
-## Read the API contract
+## Select the service contract
 
-Treat [references/openapi.yml](references/openapi.yml) as the authoritative contract for paths, methods, parameters, request bodies, content types, response schemas, and privilege requirements. The bundled contract describes OpenAPI 3.0 and SAFR API version `3.21.1022`.
+SAFR exposes four services on separate base URLs. Read only the contract or contracts involved in the request.
+
+| Service | Use it for | Authoritative operation contract |
+| --- | --- | --- |
+| COVI | Face detection and recognition; people, groups, objects, directories, users, tenants, access, and invitations | [references/covi.yml](references/covi.yml), API `3.21.1022` |
+| CVEV | Recognition events, long polling, alarms, event search, event archiving, and event biometric indexing | [references/cvev.yaml](references/cvev.yaml), API `3.34.830` |
+| CVOS | Person images, object and stream storage, preferences, logs, common objects, and maps | [references/cvos.yaml](references/cvos.yaml), API `3.0.297.1` |
+| VIRGA (VRGA) | Video workers and feeds, status, tasks, configuration, image streams, and zones | [references/vrga.yaml](references/vrga.yaml), API `3.34.816` |
+
+Use [references/SAFRSystemAPIsv1_3.pdf](references/SAFRSystemAPIsv1_3.pdf) for system topology, deployment endpoints, and older cross-service workflow examples. The PDF is a version 1.3 guide and the YAML contracts describe different service versions. Therefore:
+
+- Use the selected YAML for paths, methods, parameters, headers, bodies, media types, response schemas, and documented privileges.
+- Use this skill's environment table, derived from the PDF, for standard cloud base URLs.
+- Treat PDF request examples as workflow context. If an example conflicts with a YAML operation, follow the YAML for the current HTTP contract and identify any unresolved deployment-specific behavior.
+- Never assume that a path documented for one service exists on another service.
+
+All four YAML contracts declare `servers: []`; they do not supply usable environment hosts. Do not derive a base URL from an OpenAPI default or reuse a host merely because two services expose similar paths.
+
+## Select the environment and base URL
+
+For a live request, resolve both the service and target environment. If the target is missing, ask whether to use `dev`, `int2`, `prod`, or a custom endpoint. For a sample or reusable client, leave the environment configurable instead of choosing one silently. Never default to production.
+
+| Service | `dev` | `int2` (pre-production / Partner Cloud) | `prod` |
+| --- | --- | --- | --- |
+| COVI | `https://covi.dev.real.com` | `https://covi.int2.real.com` | `https://covi.real.com` |
+| CVEV | `https://cv-event.dev.real.com` | `https://cv-event.int2.real.com` | `https://cv-event.real.com` |
+| VIRGA (VRGA) | `https://virga.dev.real.com` | `https://virga.int2.real.com` | `https://virga.real.com` |
+| CVOS | `https://cvos.dev.real.com` | `https://cvos.int2.real.com` | `https://cvos.real.com` |
+
+The `dev` hosts follow the user's explicit rule: take the corresponding `int2` host and replace only the `int2` DNS label with `dev`. The production hosts omit the environment label. The documentation page for a standard cloud service is `<base-url>/docs/index.html`; do not append that documentation path to API requests.
+
+Always allow a custom endpoint. If the user selects `custom` or describes an on-premises/private deployment, ask for the full base URL for each involved service. A custom URL may include a path prefix, so preserve it. Do not transform a custom hostname using the `int2`/`dev` rule. Confirm that it is the intended trusted deployment before sending credentials.
+
+The PDF records these historical local defaults; treat them as candidates to confirm, not automatic choices:
+
+| Service | HTTP | HTTPS |
+| --- | --- | --- |
+| COVI | `http://localhost:8080/covi-ws` | `https://localhost:8081/covi-ws` |
+| CVEV | `http://localhost:8082` | `https://localhost:8083` |
+| VIRGA (VRGA) | `http://localhost:8084` | `https://localhost:8085` |
+| CVOS | `http://localhost:8086` | `https://localhost:8087` |
+
+Require HTTPS for remote deployments. Permit HTTP only when the user identifies a trusted local deployment. Keep TLS certificate verification enabled unless the user explicitly provides a deployment-specific reason and authorization to change it.
+
+Prefer service-specific configuration such as `SAFR_COVI_BASE_URL`, `SAFR_CVEV_BASE_URL`, `SAFR_CVOS_BASE_URL`, and `SAFR_VIRGA_BASE_URL`. Use a generic `SAFR_BASE_URL` only when the service is unambiguous. In a cross-service workflow, resolve a base URL for every service rather than reusing one service's host.
+
+Construct a request URL as:
+
+```text
+<selected-base-url-without-trailing-slash><path-exactly-as-declared-in-the-selected-yaml>
+```
+
+## Resolve the operation
 
 Before constructing a request or client method:
 
-1. Find the requested operation by path, `operationId`, or `summary` in the OpenAPI file.
-2. Read the complete operation, including its description and required privileges.
+1. Choose the service by responsibility, then find the operation by path, `operationId`, summary, or tag in its YAML.
+2. Read the entire operation, including its description, security declaration, required privilege, parameters, request body, and responses.
 3. Resolve every referenced parameter, request body, and schema under `components`.
-4. Use only fields, enum values, media types, and query parameters declared by the operation.
-5. Re-check the contract instead of relying on examples when they disagree.
+4. Use only declared fields, enum values, query parameters, headers, and media types.
+5. Re-check the contract instead of copying a PDF or Swagger UI example when they differ.
 
-Use `rg` to navigate the specification when a YAML-aware OpenAPI tool is unavailable. Useful searches include the endpoint path, `operationId`, `summary:`, `requestBody:`, and the referenced component name.
+Useful anchors for common workflows include:
 
-## Resolve the server
+- COVI `POST /people` for image recognition and optional identity insertion; `GET /people`, `GET /rootpeople`, and `/people/{personId}` for identity records.
+- CVEV `GET /events` for event queries and `GET /event/status` for long polling. Event time filters are epoch milliseconds and select events overlapping the requested window; add-date filters have different archive-ingestion semantics.
+- CVOS `GET /person/{personId}/face` for an enrolled person's reference image. Event captures instead use `GET /obj/{base64(eventId)}/face` or `/sceneThumb`, if the client was configured to store them; URL-encode the Base64 path value and handle the result as binary.
+- VIRGA `GET /status` reads worker status. `POST /status` is a worker-only status update requiring `X-CLIENT-ID`, `X-CLIENT-TYPE`, a body, and the other declared inputs. Ask which action is intended when “status request” is ambiguous. Use `/config/...`, `/task...`, and `/zone...` for the other video-worker administration workflows.
 
-Obtain the SAFR base URL from the user, project configuration, or an existing environment variable such as `SAFR_BASE_URL`. The OpenAPI document has an empty `servers` array, so never invent a hostname, port, or URL prefix.
+Some workflows cross services. For example, query identities through COVI and fetch their images through CVOS, or query events through CVEV and retrieve associated stored objects through CVOS. Validate each leg against its own contract and base URL.
 
-Normalize request URLs as:
+For “events from the last N seconds,” capture one current epoch-millisecond value and derive both bounds from it. Decide whether the user means event-time overlap or archive-add time. Follow the CVEV paging object until complete when the request says “all” or “each.” For event long polling, a timeout or HTTP `204` is a normal no-change result; on `200`, follow the PDF workflow while validating `sinceModDate` and `lastModDate` against the current CVEV schema.
 
-```text
-<base-url-without-trailing-slash><path-from-openapi>
-```
+The imported YAML files contain conversion artifacts. Treat them as reasons to verify, not permission to invent request details:
 
-Require HTTPS unless the user explicitly identifies a trusted local development deployment. Keep TLS certificate verification enabled; do not add an insecure TLS option automatically.
+- `Authentication: [global]` on an API-key scheme means the credential header is required; it does not define an OAuth scope.
+- VIRGA paths containing literal `**` do not declare the concrete route segment. Obtain the deployment's exact path before calling one.
+- CVOS path casing is significant: `/sharedStream/{id}` and `/sharedstream/{id}` are distinct operations.
+- A few CVOS operations declare required path parameters absent from the path template. Do not append invented segments; compare the sibling operation and confirm the deployed route.
 
-## Authenticate every request
+## Authenticate and select a directory
 
-Send this header on every SAFR API request:
+The four contracts define the API-key header `X-RPC-AUTHORIZATION`. Treat the user ID as an opaque SAFR identifier, not an email address, and preserve it exactly.
+
+The imported sources disagree about password representation:
+
+- The COVI contract and the PDF's direct HTTP examples use `X-RPC-AUTHORIZATION: <userId>:<password>`.
+- The CVEV, CVOS, and VIRGA Swagger introductions tell users of “Try it out” to enter `<userId>:<base64(password)>`, while the PDF's direct HTTP examples for those services show the raw password.
+
+For COVI, use the contract's raw `<userId>:<password>` form unless the deployment says otherwise. For CVEV, CVOS, or VIRGA, prefer a prebuilt authorization value or a known deployment convention. If only a user ID and password are available and the convention is unknown, ask whether that deployment expects a raw or Base64-encoded password before constructing or sending the header. Never Base64-encode the entire `userId:password` pair unless deployment documentation explicitly requires it.
+
+Use `X-RPC-DIRECTORY` when the selected YAML operation declares it. The PDF's older examples use `Authorization: main` as the directory header; do not copy that legacy header name unless the target deployment explicitly requires it. Use `main` only when its documented default is appropriate or the caller chooses it. For a custom deployment or live destructive request, obtain or explicitly confirm the directory rather than silently accepting `main`. Do not confuse either directory header with `X-RPC-AUTHORIZATION`.
+
+Do not infer an extra gateway `Authorization` header from generic 401/403 text. Add proxy or gateway credentials only when the user or deployment configuration supplies that requirement.
+
+## Protect credentials and sensitive data
+
+Obtain credentials at runtime from protected environment variables or a secret manager. Never commit credentials, embed them in generated code, or expose them in commands, logs, diffs, examples, error reports, or final responses. Display the credential header only as:
 
 ```http
-X-RPC-AUTHORIZATION: <userId>:<password>
+X-RPC-AUTHORIZATION: <redacted>
 ```
 
-Join the user ID and password with one colon. Send the resulting value directly; do not Base64-encode it, prefix it with `Basic` or `Bearer`, or substitute a standard `Authorization` header.
+Do not enable shell tracing while secrets are in scope. Treat face images, signatures, identity records, recognition events, access clearances, and stored scene images as sensitive. Confirm that uploads and access are authorized, minimize returned personal data, and avoid persisting response bodies unless required.
 
-Treat `<userId>` as an opaque SAFR user identifier, not as an email address. Obtain the exact user ID from SAFR administration or runtime configuration; do not derive it from an email address, substitute an account email, or apply email-specific parsing, validation, or normalization. Preserve the supplied user ID unchanged when constructing the header.
+Runnable examples may reference a protected runtime variable such as `${SAFR_AUTHORIZATION}`, but must never contain or print its literal value. Treat the bundled system guide, which is marked RealNetworks Confidential, as internal material and do not reproduce large excerpts.
 
-Treat the OpenAPI `components.securitySchemes.Authentication` definition and root-level `security` requirement as applying to every operation, including operations that do not list an authentication parameter locally.
+Never reuse production credentials against `dev`, `int2`, or a custom host merely because the authentication header has the same name.
 
-Handle the specification's naming inconsistency carefully:
+## Construct and execute requests safely
 
-- `components.parameters.XRpcAuthorization` actually defines the required `X-RPC-DIRECTORY` header.
-- `components.securitySchemes.Authentication` defines the `X-RPC-AUTHORIZATION` credential header.
-- Never place a directory name in `X-RPC-AUTHORIZATION`.
-- Send `X-RPC-DIRECTORY` separately when an operation references that parameter or when directory selection is required. Use the caller's directory; use the documented `main` default only when it is appropriate for the target deployment.
+Distinguish explaining or generating a request from actually sending it. Do not call an API when the user asks only for documentation, sample code, or a dry run.
 
-If a deployment requires an additional proxy or gateway `Authorization` header, obtain that requirement and value from the user or deployment configuration. Do not infer one from the generic 401/403 response text in the OpenAPI file.
+For every request:
 
-## Protect credentials and biometric data
+- Preserve the declared method and path, URL-encode path and query values, and include all required parameters.
+- Use the operation's declared content type. Send binary images with binary-safe handling, not text conversion or multipart encoding unless the operation explicitly requires multipart.
+- Serialize structured bodies against the referenced schema and omit invented properties.
+- Check the operation description for required read, write, delete, configuration, access, or super-user privileges.
+- Keep the base URL, authorization value, and directory injectable in reusable code and redact secrets in instrumentation.
 
-Obtain credentials at runtime from a secret manager, protected environment variables, or an equivalent secure facility. Prefer names such as:
-
-```text
-SAFR_BASE_URL
-SAFR_USER_ID
-SAFR_PASSWORD
-SAFR_DIRECTORY
-```
-
-Never commit credentials, write them into generated source code, place them in `SKILL.md`, or include their values in logs, diffs, examples, error reports, or final responses. Redact the authorization value as `X-RPC-AUTHORIZATION: <redacted>` when displaying a request.
-
-Do not enable shell tracing while credentials are in scope. Do not write the combined authorization value to a temporary file. If the password contains a colon and the deployment's parsing behavior is not known, stop and ask how that deployment escapes or represents the credential.
-
-Treat face images, signatures, identity records, access clearances, and recognition results as sensitive data. Confirm that the requested use and upload are authorized. Minimize returned personal data and avoid persisting response bodies unless the task requires it.
-
-## Select the operation family
-
-Use the OpenAPI contract to choose among these main areas:
-
-- Use `/people`, `/verification`, `/signature`, `/rootpeople`, `/mergedpeople`, `/merge`, `/mergerecursive`, and `/unmerge` for face and person workflows.
-- Use `/persontypes`, `/homelocations`, `/groups`, and `/group/...` for person classification and group membership.
-- Use `/objects` and `/objecttypes` for object recognition and object records.
-- Use `/admin/...` and `/config/...` for directories, roles, users, credentials, system configuration, tenants, usage, and limits.
-- Use `/access/...`, `/invite/...`, `/peoplezones`, and the zone-count endpoints for clearances, invitations, and zone membership.
-
-Do not guess which endpoint fits an ambiguous request. Present the plausible operations and ask for the missing identity, directory, desired state, or scope when choosing incorrectly could modify data.
-
-## Classify side effects before execution
-
-Distinguish between explaining or generating a request and actually sending it. Do not call the API when the user only asks for documentation, sample code, or a dry run.
-
-Before sending a mutating request:
-
-1. Identify the exact method, path, tenant or directory, and target identifiers.
-2. State the expected state change.
-3. Check the operation description for the required privilege.
-4. Obtain confirmation before deleting records, merging or unmerging people, modifying users or roles, changing tenant or system configuration, altering license limits, or changing access controls.
-5. Avoid automatic retries unless the operation is known to be idempotent and the request outcome is known.
-
-Treat `POST /people` as mutating by default. Its documented defaults include `insert=true`, `update=true`, and `merge=true`. For detection or identification without database changes, explicitly send:
+Treat COVI `POST /people` as mutating by default: its documented defaults include `insert=true`, `update=true`, and `merge=true`. For recognition without directory changes, explicitly use:
 
 ```text
 insert=false&update=false&merge=false
 ```
 
-Explain those flags before execution and verify that no other selected parameter introduces a write. Require the appropriate write privilege whenever insertion, update, merge, or another write behavior is enabled.
+Explain those flags before execution and confirm that no other selected parameter causes a write.
 
-Treat all `DELETE` operations as destructive. Re-read the target immediately before sending the request and report the identifiers that will be affected.
+Do not silently add COVI's face-quality bypass parameters or change its face-grouping threshold; both materially affect recognition quality and false-positive risk. For `DELETE /people/{personId}`, explain and explicitly choose whether `recursive=true` should remove all people merged under the root identity and whether `async=true` is acceptable.
 
-## Construct requests exactly
+Before a destructive or high-impact request, verify the environment, service, method, exact path, directory or tenant, target identifiers, and expected state change. Obtain confirmation before deletion, identity merge or unmerge, user/role/tenant changes, system configuration changes, access-control changes, or any production mutation whose scope was not already explicit. Do not blindly retry a mutation whose outcome is unknown. Retry only safe or confirmed-idempotent operations with bounded backoff.
 
-Build every request from the selected OpenAPI operation:
+## Handle and report results
 
-- Preserve the documented HTTP method and path.
-- Substitute and URL-encode all path parameters.
-- Include required query and header parameters.
-- Use the documented request media type. Face and object image operations commonly accept `image/jpeg` or `application/octet-stream`; structured operations use their declared JSON media type.
-- Send binary files without text conversion or multipart encoding unless the operation explicitly requires multipart data.
-- Serialize JSON bodies against the referenced schema and omit invented properties.
-- Set `Accept` to a documented response media type when the caller needs a specific representation.
+Parse the response using its declared media type and schema. Preserve useful SAFR error fields while redacting credentials and unnecessary personal data.
 
-Use environment-variable placeholders in examples. A representative authenticated read request is:
+- For `400`, compare the parameters, content type, and body with the selected operation.
+- For `401`, verify the selected environment and service host, exact credential-header spelling, and target deployment's credential representation without displaying it. Do not repeatedly retry rejected credentials.
+- For `403`, identify the privilege named by the operation; do not work around authorization controls.
+- For `404`, verify that the path belongs to the selected service and check the base-path prefix, directory, and identifier.
+- For `409`, inspect the documented conflict condition rather than retrying unchanged.
 
-```bash
-: "${SAFR_BASE_URL:?Set SAFR_BASE_URL}"
-: "${SAFR_USER_ID:?Set SAFR_USER_ID}"
-: "${SAFR_PASSWORD:?Set SAFR_PASSWORD}"
-: "${SAFR_DIRECTORY:?Set SAFR_DIRECTORY}"
-
-curl --fail-with-body --silent --show-error \
-  --request GET \
-  --header "X-RPC-AUTHORIZATION: ${SAFR_USER_ID}:${SAFR_PASSWORD}" \
-  --header "X-RPC-DIRECTORY: ${SAFR_DIRECTORY}" \
-  --header "Accept: application/json" \
-  "${SAFR_BASE_URL%/}/people/${PERSON_ID}"
-```
-
-A representative non-persisting face request is:
-
-```bash
-curl --fail-with-body --silent --show-error \
-  --request POST \
-  --header "X-RPC-AUTHORIZATION: ${SAFR_USER_ID}:${SAFR_PASSWORD}" \
-  --header "X-RPC-DIRECTORY: ${SAFR_DIRECTORY}" \
-  --header "Content-Type: image/jpeg" \
-  --header "Accept: application/json" \
-  --data-binary "@${IMAGE_PATH}" \
-  "${SAFR_BASE_URL%/}/people?insert=false&update=false&merge=false"
-```
-
-Adapt these examples only after reading the selected operation. Do not assume that all operations accept JSON, require `X-RPC-DIRECTORY`, or return the same response type.
-
-## Handle responses and errors
-
-Capture the HTTP status and parse the response using its documented media type and schema. Preserve useful SAFR error fields such as `error`, `errorReason`, `message`, and `path`, while redacting credentials and unnecessary personal data.
-
-Handle common failures as follows:
-
-- For `400`, compare parameters, content type, and body against the operation and referenced schema.
-- For `401`, verify the base URL and presence and exact spelling of `X-RPC-AUTHORIZATION`; then verify the runtime user ID and password without displaying them. Do not repeatedly retry invalid credentials.
-- For `403`, inspect the operation description for required privileges such as read, write, delete, configuration, account, access, or super-user privileges. Do not work around authorization controls.
-- For `404`, verify the path, directory, and target identifier.
-- For `409`, inspect the operation's documented conflict conditions and correct the request rather than retrying it unchanged.
-- For transient server or network failures, retry only safe or confirmed-idempotent operations with bounded backoff. Never blindly retry a mutation whose result is unknown.
-
-## Report the result
-
-Return or record:
-
-1. The operation ID or method and path used.
-2. The target base URL host and directory, without credentials.
-3. The HTTP status.
-4. The relevant result or error summary.
-5. Whether the request changed state.
-6. Any required manual follow-up or missing privilege.
-
-When generating reusable client code, keep the base URL, user ID, password, and directory injectable through configuration. Centralize construction of `X-RPC-AUTHORIZATION`, redact it in instrumentation, and add tests that assert the header is present without snapshotting its value.
+Report the service and operation, environment or custom host, directory when applicable, HTTP status, relevant result or error, whether state changed, and any missing privilege or follow-up. Never include credentials in the report.
